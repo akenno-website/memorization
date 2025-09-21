@@ -1,193 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Memorization Tool</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    
-    #app {
-      max-width: 800px;
-      width: 100%;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-
-    .credit {
-      color:darkgrey;
-    }
-    .section {
-      font-size: 18px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      margin-bottom: 20px;
-      max-height: 400px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 8px;
-    }
-    button {
-      margin: 5px;
-      padding: 10px 15px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      background: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
-    }
-    input {
-      padding: 5px;
-      font-size: 16px;
-      margin-right: 10px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Dynamic Memorization Tool</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  #app {
+    max-width: 800px;
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  .credit { color: darkgrey; }
+  .section {
+    font-size: 18px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    word-wrap: break-word;
+  }
+  button { margin: 5px; padding: 10px 15px; font-size: 16px; border: none; border-radius: 5px; background: #4CAF50; color: white; cursor: pointer; }
+  button:hover { background: #45a049; }
+  input, textarea { padding: 5px; font-size: 16px; margin-bottom: 10px; width: 100%; }
+</style>
 </head>
 <body>
-  <div id="app">
-    <h2>Memorization Tool</h2>
-    <p class="credit">@ Akenno Masangkay, 2025<p>
-    <div id="content" class="section"></div>
-    <div id="controls"></div>
-  </div>
+<div id="app">
+  <h2>Memorization Tool</h2>
+  <p class="credit">@ Akenno Masangkay, 2025</p>
 
-  <script>
-const sections = [
-  // Tower 1
-  `Filipino is resilient. Since time immemorial, we are tested by countless calamities; volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods and landslides. 
-  Victoriously, we surmounted these ordeals and pains...`,
+  <!-- Speech input -->
+  <textarea id="speechInput" placeholder="Paste your speech here..." rows="6"></textarea>
+  <input type="number" id="towerSize" placeholder="Words per tower (e.g., 50)">
+  <input type="number" id="overlapSize" placeholder="Words to overlap (e.g., 10)">
 
-  // Tower 2
-  `...super typhoons, flash floods and landslides. 
-  Victoriously, we surmounted these ordeals and pains, beyond imagination of the human race. Instant death of our loved ones, claimed by transportation mishaps and natural disasters. 
-  Thousands also die in hunger and malnutrition...`,
+  <!-- Buttons -->
+  <button onclick="init()">Start Memorization</button>
+  <button onclick="loadFilipinoResilient()">Practice “Filipino is resilient”</button>
 
-  // Tower 3
-  `...transportation mishaps and natural disasters. 
-  Thousands also die in hunger and malnutrition. Including ambushes and endless wars in Mindanao. They trampled our basic human rights, such as the right to live. 
-  I lost my loving husband, who didnt want to join Abu Sayyaf...`,
+  <div id="content" class="section"></div>
+  <div id="controls"></div>
+</div>
 
-  // Tower 4
-  `...the right to live. 
-  I lost my loving husband, who didnt want to join Abu Sayyaf. I lost my only son, who opted to become a military man. We lost our innocent children and women, we lost our homes and properties. 
-  Survivors are Filipinos. The wrath of nature and cruel destiny...`,
+<script>
+let sections = [];
+let current = 0;
+let mode = "read";
+let quizWords = [];
+let revealed = [];
 
-  // Tower 5
-  `...homes and properties. 
-  Survivors are Filipinos. The wrath of nature and cruel destiny may steal everything from us. Wealth, properties, and family. But the Filipinos never give up. For us we are continuously scourged by the test of time. The spirit to survive and to bounce back remains undefeated. 
-  Im as pliant as a bamboo for Im a man of Earth...`,
+// Auto-fill classic speech
+function loadFilipinoResilient() {
+  const text = `Filipino is resilient. Since time immemorial, we are tested by countless calamities; volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods and landslides. 
+Victoriously, we surmounted these ordeals and pains. 
+...super typhoons, flash floods and landslides. Victoriously, we surmounted these ordeals and pains, beyond imagination of the human race. Instant death of our loved ones, claimed by transportation mishaps and natural disasters. Thousands also die in hunger and malnutrition. 
+...transportation mishaps and natural disasters. Thousands also die in hunger and malnutrition. Including ambushes and endless wars in Mindanao. They trampled our basic human rights, such as the right to live. 
+I lost my loving husband, who didnt want to join Abu Sayyaf. I lost my only son, who opted to become a military man. We lost our innocent children and women, we lost our homes and properties. 
+Survivors are Filipinos. The wrath of nature and cruel destiny may steal everything from us. Wealth, properties, and family. But the Filipinos never give up. For us we are continuously scourged by the test of time. The spirit to survive and to bounce back remains undefeated. 
+Im as pliant as a bamboo for Im a man of Earth. My hair may all be blown away by the winds. And my legs may be crippled by the smash of waves. But I will stand and pick up the shattered pieces of myself and continue to live. 
+Resolute to survive, clothed with an inspiration to live, not only for my family but also for my beloved country. Filipinos unite in the midst of crisis, regardless of socio-economic status, tradition and creed. 
+The world has seen the magnanimous spirit of the Filipinos in crucial times. The gap between the rich and the poor was narrowed. Envy was replaced by sympathy. Hatred was conquered by love. Selfishness was set aside. And saving ones life is the ultimate desire. 
+History tells us that the Filipinos have captured innumerable foes, natural and not. And shall always strive to champion in all odds. Because innate in the Filipino is the will to survive. We may be daunted by the horrible scenes around us. 
+But certainly, we will be strengthened by our unwavering faith in God. We have been lotted by many nations in the world, for our resiliency during disasters, others die in saving lives. But only few realize, that we are able to survive, because our spirit to fight is deeply anchored from faith, that God Almighty will never forsake us. 
+I believe that Filipinos, divided by varied doctrines and cultures, are capable to be on top of any situation, if united. Together, we can face any challenge ahead of us. We may stumble and fall. But we will bounce back, arms stronger with vision and faith, that after darkness, after pains and sufferings, the Filipino survives, the Filipino is resilient.`;
+  document.getElementById("speechInput").value = text;
+}
 
-  // Tower 6
-  `...remains undefeated. 
-  Im as pliant as a bamboo for Im a man of Earth. My hair may all be blown away by the winds. And my legs may be crippled by the smash of waves. But I will stand and pick up the shattered pieces of myself and continue to live. 
-  Resolute to survive, clothed with an inspiration to live...`,
+// Initialize sections dynamically
+function init() {
+  const speech = document.getElementById("speechInput").value.trim();
+  const towerSize = parseInt(document.getElementById("towerSize").value) || 50;
+  const overlapSize = parseInt(document.getElementById("overlapSize").value) || 10;
 
-  // Tower 7
-  `...continue to live. 
-  Resolute to survive, clothed with an inspiration to live, not only for my family but also for my beloved country. Filipinos unite in the midst of crisis, regardless of socio-economic status, tradition and creed. 
-  The world has seen the magnanimous spirit of the Filipinos in crucial times...`,
+  if (!speech) return alert("Please enter your speech.");
 
-  // Tower 8
-  `...tradition and creed. 
-  The world has seen the magnanimous spirit of the Filipinos in crucial times. The gap between the rich and the poor was narrowed. Envy was replaced by sympathy. Hatred was conquered by love. Selfishness was set aside. And saving ones life is the ultimate desire. 
-  History tells us that the Filipinos have captured innumerable foes...`,
+  // Hide setup inputs
+  document.getElementById("speechInput").style.display = "none";
+  document.getElementById("towerSize").style.display = "none";
+  document.getElementById("overlapSize").style.display = "none";
+  document.querySelector('button[onclick="init()"]').style.display = "none";
+  document.querySelector('button[onclick="loadFilipinoResilient()"]').style.display = "none";
 
-  // Tower 9
-  `...ultimate desire. 
-  History tells us that the Filipinos have captured innumerable foes, natural and not. And shall always strive to champion in all odds. Because innate in the Filipino is the will to survive. 
-  We may be daunted by the horrible scenes around us...`,
+  const words = speech.split(/\s+/);
+  sections = [];
+  let start = 0;
+  while (start < words.length) {
+    let end = start + towerSize;
+    const towerWords = words.slice(start, end);
+    sections.push(towerWords.join(" "));
+    start = end - overlapSize;
+  }
 
-  // Tower 10
-  `...will to survive. 
-  We may be daunted by the horrible scenes around us. But certainly, we will be strengthened by our unwavering faith in God. We have been lotted by many nations in the world, for our resiliency during disasters, others die in saving lives. 
-  But only few realize, that we are able to survive...`,
+  current = 0;
+  mode = "read";
+  render();
+}
 
-  // Tower 11
-  `...saving lives. 
-  But only few realize, that we are able to survive, because our spirit to fight is deeply anchored from faith, that God Almighty will never forsake us. 
-  I believe that Filipinos, divided by varied doctrines and cultures...`,
 
-  // Tower 12
-  `...never forsake us. 
-  I believe that Filipinos, divided by varied doctrines and cultures, are capable to be on top of any situation, if united. Together, we can face any challenge ahead of us. 
-  We may stumble and fall. But we will bounce back...`,
+// Rendering logic
+function render() {
+  const content = document.getElementById("content");
+  const controls = document.getElementById("controls");
+  controls.innerHTML = "";
 
-  // Tower 13
-  `...challenge ahead of us. 
-  We may stumble and fall. But we will bounce back, arms stronger with vision and faith, that after darkness, after pains and sufferings, the Filipino survives, the Filipino is resilient.`
-];
-    let current = 0;
-    let mode = "read"; // "read" | "blank" | "quiz"
-    let quizWords = [];
-    let revealed = [];
+  if (!sections.length) {
+    content.textContent = "";
+    return;
+  }
 
-    function render() {
-      const content = document.getElementById("content");
-      const controls = document.getElementById("controls");
-      controls.innerHTML = "";
+  if (mode === "read") {
+    content.textContent = sections[current];
+    controls.innerHTML = `<button onclick="next('blank')">I memorized it</button>${current > 0 ? `<button onclick="back()">Back</button>` : ""}`;
+  } else if (mode === "blank") {
+    content.textContent = blankify(sections[current]);
+    controls.innerHTML = `<button onclick="next('quiz')">Start Quiz</button><button onclick="back()">Back</button>`;
+  } else if (mode === "quiz") {
+    content.textContent = rebuildQuiz();
+    controls.innerHTML = `<input id="answer" placeholder="Type a missing word"><button onclick="check()">Submit</button><button onclick="back()">Back</button>`;
+  }
+}
 
-      if (mode === "read") {
-        content.textContent = sections[current];
-        controls.innerHTML = `
-          <button onclick="next('blank')">I memorized it</button>
-          ${current > 0 ? `<button onclick="back()">Back</button>` : ""}
-        `;
-      }
+// Masking words for blank mode
+function blankify(text) {
+  return text.split(" ").map(maskWord).join(" ");
+}
 
-      else if (mode === "blank") {
-        content.textContent = blankify(sections[current]);
-        controls.innerHTML = `
-          <button onclick="next('quiz')">Start Quiz</button>
-          <button onclick="back()">Back</button>
-        `;
-      }
+function maskWord(word) {
+  let core = word.replace(/[^a-zA-Z]/g, "");
+  if (core.length <= 1) return word;
+  let masked = core[0] + "_".repeat(core.length - 1);
+  return word.replace(core, masked);
+}
 
-      else if (mode === "quiz") {
-        content.innerHTML = rebuildQuiz();
-        controls.innerHTML = `
-          <input id="answer" placeholder="Type a missing word">
-          <button onclick="check()">Submit</button>
-          <button onclick="back()">Back</button>
-        `;
-      }
-    }
+// Quiz logic
+function startQuiz() {
+  quizWords = sections[current].split(/\s+/);
+  revealed = quizWords.map(() => false);
+  render();
+}
 
-    function blankify(text) {
-      return text.split(" ").map(w => maskWord(w)).join(" ");
-    }
+function rebuildQuiz() {
+  return quizWords.map((w, i) => revealed[i] ? w : maskWord(w)).join(" ");
+}
 
-    function maskWord(word) {
-      let core = word.replace(/[^a-zA-Z]/g, "");
-      if (core.length <= 1) return word;
-      let masked = core[0] + "_".repeat(core.length - 1);
-      return word.replace(core, masked);
-    }
-
-    function startQuiz() {
-      quizWords = sections[current].split(/\s+/);
-      revealed = quizWords.map(() => false);
-      render();
-    }
-
-    function rebuildQuiz() {
-      return quizWords.map((w, i) => revealed[i] ? w : maskWord(w)).join(" ");
-    }
-
- function check() {
+function check() {
   const input = document.getElementById("answer");
-  const guesses = input.value.trim().toLowerCase().split(/\s+/); // split into words
+  const guesses = input.value.trim().toLowerCase().split(/\s+/);
   let found = false;
 
   guesses.forEach(guess => {
@@ -201,62 +172,50 @@ const sections = [
 
   if (found) {
     input.value = "";
-    document.getElementById("content").innerHTML = rebuildQuiz();
-
+    document.getElementById("content").textContent = rebuildQuiz();
     if (revealed.every(r => r)) {
-      document.getElementById("controls").innerHTML = `
-        <button onclick="nextSection()">Next Section</button>
-        <button onclick="back()">Back</button>
-      `;
+      document.getElementById("controls").innerHTML = `<button onclick="nextSection()">Next Section</button><button onclick="back()">Back</button>`;
     }
-  } else {
-    alert("Try again!");
-  }
+  } else alert("Try again!");
 
-  input.focus(); // keep typing without clicking
+  input.focus();
 }
 
-    function next(newMode) {
-      if (newMode) mode = newMode;
-      if (mode === "quiz") startQuiz();
-      else render();
-    }
+// Navigation
+function next(newMode) {
+  if (newMode) mode = newMode;
+  if (mode === "quiz") startQuiz();
+  else render();
+}
 
-    function back() {
-      if (mode === "quiz") mode = "blank";
-      else if (mode === "blank") mode = "read";
-      else if (mode === "read" && current > 0) {
-        current--;
-        mode = "quiz";
-        startQuiz();
-        return;
-      }
-      render();
-    }
+function back() {
+  if (mode === "quiz") mode = "blank";
+  else if (mode === "blank") mode = "read";
+  else if (mode === "read" && current > 0) current--;
+  render();
+}
 
-    function nextSection() {
-      if (current < sections.length - 1) {
-        current++;
-        mode = "read";
-        render();
-      } else {
-        document.getElementById("content").textContent = "🎉 Finished all sections!";
-        document.getElementById("controls").innerHTML = "";
-      }
-    }
-
+function nextSection() {
+  if (current < sections.length - 1) {
+    current++;
+    mode = "read";
     render();
+  } else {
+    document.getElementById("content").textContent = "🎉 Finished all sections!";
+    document.getElementById("controls").innerHTML = "";
+  }
+}
 
-    // ✅ Press Enter to submit while typing in the quiz textbox
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const input = document.getElementById("answer");
-        if (input && document.activeElement === input) {
-          e.preventDefault();
-          check();
-        }
-      }
-    });
-  </script>
+// Submit on Enter key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const input = document.getElementById("answer");
+    if (input && document.activeElement === input) {
+      e.preventDefault();
+      check();
+    }
+  }
+});
+</script>
 </body>
 </html>
