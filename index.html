@@ -74,15 +74,11 @@ let mode = "read";
 let quizWords = [];
 let revealed = [];
 
+// Preloaded text
 function loadFilipinoResilient() {
   const text = `Filipino is resilient. Since time immemorial, we have been tested by countless calamities: volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods, and landslides. Victoriously, we surmounted these ordeals and pains beyond imagination. Instant death of our loved ones claimed by transportation mishaps and natural disasters. Thousands also die in hunger and malnutrition, including ambushes and endless wars in Mindanao. They trampled our basic human rights, such as the right to live. I lost my loving husband, who didn’t want to join Abu Sayyaf. I lost my only son, who opted to become a military man. We lost our innocent children and women. We lost our homes and properties. Survivors are Filipinos. The wrath of nature and cruel destiny may steal everything from us — wealth, properties, and family — but Filipinos never give up. Though we are continuously scourged by the test of time, the spirit to survive and to bounce back remains undefeated. I’m as pliant as a bamboo, for I’m a man of Earth. My hair may all be blown away by the winds, and my legs may be crippled by the smash of waves. But I will stand and pick up the shattered pieces of myself, and continue to live. Resolute to survive, clothed with inspiration to live not only for my family, but also for my beloved country, Filipinos unite in the midst of crisis, regardless of socio-economic status, tradition, and creed. The world has seen the magnanimous spirit of the Filipinos in crucial times. The gap between the rich and the poor was narrowed. Envy was replaced by sympathy. Hatred was conquered by love. Selfishness was set aside, and saving one’s life became the ultimate desire. History tells us that the Filipinos have conquered innumerable foes — natural and not — and shall always strive to champion all odds. Because innate in the Filipino is the will to survive. We may be daunted by the horrible scenes around us, but certainly, we are strengthened by our unwavering faith in God. We have been lauded by many nations in the world for our resiliency during disasters. Others die in saving lives, but only a few realize that we are able to survive because our spirit to fight is deeply anchored in faith — that God Almighty will never forsake us. I believe that Filipinos, divided by varied doctrines and cultures, are capable of overcoming any situation if united. Together, we can face any challenge ahead of us. We may stumble and fall, but we will bounce back — arms stronger, with vision and faith — that after darkness, after pain and suffering, the Filipino survives. The Filipino is resilient.`;
   document.getElementById("speechInput").value = text;
 }
-
-function skipQuiz() {
-  nextSection();
-}
-
 
 // Initialize sections
 function init() {
@@ -113,7 +109,7 @@ function init() {
   render();
 }
 
-// Rendering
+// Render content and controls
 function render() {
   const content = document.getElementById("content");
   const controls = document.getElementById("controls");
@@ -127,19 +123,18 @@ function render() {
   } else if (mode === "blank") {
     content.textContent = blankify(sections[current]);
     controls.innerHTML = `<button onclick="next('quiz')">Start Quiz</button><button onclick="back()">Back</button>`;
-  else if (mode === "quiz") {
-  content.textContent = rebuildQuiz();
-  controls.innerHTML = `
-    <input id="answer" placeholder="Type a missing word">
-    <button onclick="check()">Submit</button>
-    <button onclick="skipQuiz()">Skip Quiz</button>
-    <button onclick="back()">Back</button>
-  `;
+  } else if (mode === "quiz") {
+    content.textContent = rebuildQuiz();
+    controls.innerHTML = `
+      <input id="answer" placeholder="Type a missing word">
+      <button onclick="check()">Submit</button>
+      <button onclick="skipQuiz()">Skip Quiz</button>
+      <button onclick="back()">Back</button>
+    `;
+  }
 }
 
-}
-
-// Blank mode
+// Mask words for blank mode
 function blankify(text) {
   return text.split(" ").map(maskWord).join(" ");
 }
@@ -150,7 +145,7 @@ function maskWord(word) {
   return word.replace(core, masked);
 }
 
-// Quiz
+// Quiz logic
 function startQuiz() {
   quizWords = sections[current].split(/\s+/);
   revealed = quizWords.map(() => false);
@@ -209,7 +204,12 @@ function nextSection() {
   }
 }
 
-// Enter key submits
+// Skip quiz
+function skipQuiz() {
+  nextSection();
+}
+
+// Submit on Enter key
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const input = document.getElementById("answer");
@@ -222,4 +222,3 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
-
