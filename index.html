@@ -76,7 +76,7 @@ let revealed = [];
 
 // Preloaded text
 function loadFilipinoResilient() {
-  const text = `Filipino is resilient
+  const speech = `Filipino is resilient
 
 Since time immemorial, we are tested by countless calamities; volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods and landslides.
 Victoriously, we surmounted these ordeals and pains, beyond imagination of the human race
@@ -106,11 +106,15 @@ History tells us that the Filipinos have captured innumerable foes, natural and 
 We may be daunted by the horrible scenes around us. But certainly, we will be strengthened by our unwavering faith in God.
 We have been lotted by many nations in the world, for our resiliency during disasters, others die in saving lives.
 But only few realize, that we are able to survive, because our spirit to fight is deeply anchored from faith, that God Almighty will never forsake us.
-(solo) : I believe that Filipinos, divided by varied doctrines and cultures, are capable to be on top of any situation, if united
+I believe that Filipinos, divided by varied doctrines and cultures, are capable to be on top of any situation, if united
 Together, we can face any challenge ahead of us.
 We may stumble and fall
 But we will bounce back, arms stronger with vision and faith, that after darkness, after pains and sufferings, the Filipino survives, the Filipino is resilient.`;
+
+  document.getElementById("speechInput").value = speech;
+  init(); // automatically splits into sections and starts memorization
 }
+
 // Initialize sections
 function init() {
   const speech = document.getElementById("speechInput").value.trim();
@@ -253,5 +257,6 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
 
 
