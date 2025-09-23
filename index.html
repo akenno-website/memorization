@@ -79,6 +79,11 @@ function loadFilipinoResilient() {
   document.getElementById("speechInput").value = text;
 }
 
+function skipQuiz() {
+  nextSection();
+}
+
+
 // Initialize sections
 function init() {
   const speech = document.getElementById("speechInput").value.trim();
@@ -122,10 +127,16 @@ function render() {
   } else if (mode === "blank") {
     content.textContent = blankify(sections[current]);
     controls.innerHTML = `<button onclick="next('quiz')">Start Quiz</button><button onclick="back()">Back</button>`;
-  } else if (mode === "quiz") {
-    content.textContent = rebuildQuiz();
-    controls.innerHTML = `<input id="answer" placeholder="Type a missing word"><button onclick="check()">Submit</button><button onclick="back()">Back</button>`;
-  }
+  else if (mode === "quiz") {
+  content.textContent = rebuildQuiz();
+  controls.innerHTML = `
+    <input id="answer" placeholder="Type a missing word">
+    <button onclick="check()">Submit</button>
+    <button onclick="skipQuiz()">Skip Quiz</button>
+    <button onclick="back()">Back</button>
+  `;
+}
+
 }
 
 // Blank mode
@@ -211,3 +222,4 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
+
