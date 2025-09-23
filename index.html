@@ -19,10 +19,7 @@
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
   }
-  .credit { 
-    color: darkgrey;
-    font-size: xx-small;
-  }
+  .credit { color: darkgrey; font-size: xx-small; }
   .section {
     font-size: 18px;
     line-height: 1.6;
@@ -67,7 +64,6 @@
 
   <div id="content" class="section"></div>
   <div id="controls"></div>
-
   <p class="credit">© Akenno Masangkay, 2025 — <a href="/LICENSE">License</a></p>
 </div>
 
@@ -79,30 +75,11 @@ let quizWords = [];
 let revealed = [];
 
 function loadFilipinoResilient() {
-  const text = `Filipino is resilient. Since time immemorial, we have been tested by countless calamities: volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods, and landslides.
-
-Victoriously, we surmounted these ordeals and pains beyond imagination. Instant death of our loved ones claimed by transportation mishaps and natural disasters. Thousands also die in hunger and malnutrition, including ambushes and endless wars in Mindanao. They trampled our basic human rights, such as the right to live.
-
-I lost my loving husband, who didn’t want to join Abu Sayyaf. I lost my only son, who opted to become a military man. We lost our innocent children and women. We lost our homes and properties.
-
-Survivors are Filipinos. The wrath of nature and cruel destiny may steal everything from us — wealth, properties, and family — but Filipinos never give up. Though we are continuously scourged by the test of time, the spirit to survive and to bounce back remains undefeated.
-
-I’m as pliant as a bamboo, for I’m a man of Earth. My hair may all be blown away by the winds, and my legs may be crippled by the smash of waves. But I will stand and pick up the shattered pieces of myself, and continue to live.
-
-Resolute to survive, clothed with inspiration to live not only for my family, but also for my beloved country, Filipinos unite in the midst of crisis, regardless of socio-economic status, tradition, and creed.
-
-The world has seen the magnanimous spirit of the Filipinos in crucial times. The gap between the rich and the poor was narrowed. Envy was replaced by sympathy. Hatred was conquered by love. Selfishness was set aside, and saving one’s life became the ultimate desire.
-
-History tells us that the Filipinos have conquered innumerable foes — natural and not — and shall always strive to champion all odds. Because innate in the Filipino is the will to survive.
-
-We may be daunted by the horrible scenes around us, but certainly, we are strengthened by our unwavering faith in God. We have been lauded by many nations in the world for our resiliency during disasters. Others die in saving lives, but only a few realize that we are able to survive because our spirit to fight is deeply anchored in faith — that God Almighty will never forsake us.
-
-I believe that Filipinos, divided by varied doctrines and cultures, are capable of overcoming any situation if united. Together, we can face any challenge ahead of us. We may stumble and fall, but we will bounce back — arms stronger, with vision and faith — that after darkness, after pain and suffering, the Filipino survives.
-
-The Filipino is resilient.`;
+  const text = `Filipino is resilient. Since time immemorial, we have been tested by countless calamities: volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods, and landslides. Victoriously, we surmounted these ordeals and pains beyond imagination. Instant death of our loved ones claimed by transportation mishaps and natural disasters. Thousands also die in hunger and malnutrition, including ambushes and endless wars in Mindanao. They trampled our basic human rights, such as the right to live. I lost my loving husband, who didn’t want to join Abu Sayyaf. I lost my only son, who opted to become a military man. We lost our innocent children and women. We lost our homes and properties. Survivors are Filipinos. The wrath of nature and cruel destiny may steal everything from us — wealth, properties, and family — but Filipinos never give up. Though we are continuously scourged by the test of time, the spirit to survive and to bounce back remains undefeated. I’m as pliant as a bamboo, for I’m a man of Earth. My hair may all be blown away by the winds, and my legs may be crippled by the smash of waves. But I will stand and pick up the shattered pieces of myself, and continue to live. Resolute to survive, clothed with inspiration to live not only for my family, but also for my beloved country, Filipinos unite in the midst of crisis, regardless of socio-economic status, tradition, and creed. The world has seen the magnanimous spirit of the Filipinos in crucial times. The gap between the rich and the poor was narrowed. Envy was replaced by sympathy. Hatred was conquered by love. Selfishness was set aside, and saving one’s life became the ultimate desire. History tells us that the Filipinos have conquered innumerable foes — natural and not — and shall always strive to champion all odds. Because innate in the Filipino is the will to survive. We may be daunted by the horrible scenes around us, but certainly, we are strengthened by our unwavering faith in God. We have been lauded by many nations in the world for our resiliency during disasters. Others die in saving lives, but only a few realize that we are able to survive because our spirit to fight is deeply anchored in faith — that God Almighty will never forsake us. I believe that Filipinos, divided by varied doctrines and cultures, are capable of overcoming any situation if united. Together, we can face any challenge ahead of us. We may stumble and fall, but we will bounce back — arms stronger, with vision and faith — that after darkness, after pain and suffering, the Filipino survives. The Filipino is resilient.`;
   document.getElementById("speechInput").value = text;
 }
 
+// Initialize sections
 function init() {
   const speech = document.getElementById("speechInput").value.trim();
   const towerSize = parseInt(document.getElementById("towerSize").value) || 50;
@@ -110,18 +87,19 @@ function init() {
 
   if (!speech) return alert("Please enter your speech.");
 
-  // Hide inputs
-  ["speechInput", "towerSize", "overlapSize"].forEach(id => document.getElementById(id).style.display = "none");
+  document.getElementById("speechInput").style.display = "none";
+  document.getElementById("towerSize").style.display = "none";
+  document.getElementById("overlapSize").style.display = "none";
   document.querySelector('button[onclick="init()"]').style.display = "none";
   document.querySelector('button[onclick="loadFilipinoResilient()"]').style.display = "none";
 
-  const words = speech.replace(/[’]/g, "'").split(/\s+/); // Normalize smart quotes
+  const words = speech.split(/\s+/);
   sections = [];
   let start = 0;
-
   while (start < words.length) {
-    const end = Math.min(start + towerSize, words.length);
-    sections.push(words.slice(start, end).join(" "));
+    let end = start + towerSize;
+    const towerWords = words.slice(start, end);
+    sections.push(towerWords.join(" "));
     start = end - overlapSize;
   }
 
@@ -130,62 +108,42 @@ function init() {
   render();
 }
 
+// Rendering
 function render() {
   const content = document.getElementById("content");
   const controls = document.getElementById("controls");
   controls.innerHTML = "";
 
-  if (!sections.length) {
-    content.textContent = "";
-    return;
-  }
-
-  const sectionText = sections[current];
+  if (!sections.length) { content.textContent = ""; return; }
 
   if (mode === "read") {
-    content.textContent = sectionText;
-    controls.innerHTML = `
-      <button onclick="next('blank')">I memorized it</button>
-      ${current > 0 ? `<button onclick="goBack()">Back</button>` : ""}
-    `;
+    content.textContent = sections[current];
+    controls.innerHTML = `<button onclick="next('blank')">I memorized it</button>${current > 0 ? `<button onclick="back()">Back</button>` : ""}`;
   } else if (mode === "blank") {
-    content.textContent = blankify(sectionText);
-    controls.innerHTML = `
-      <button onclick="next('quiz')">Start Quiz</button>
-      <button onclick="goBack()">Back</button>
-    `;
+    content.textContent = blankify(sections[current]);
+    controls.innerHTML = `<button onclick="next('quiz')">Start Quiz</button><button onclick="back()">Back</button>`;
   } else if (mode === "quiz") {
-    if (!quizWords.length) startQuiz();
     content.textContent = rebuildQuiz();
-    controls.innerHTML = `
-      <input id="answer" placeholder="Type a missing word">
-      <button onclick="check()">Submit</button>
-      <button onclick="goBack()">Back</button>
-      <button onclick="nextSection()">Skip Quiz</button>
-    `;
-    document.getElementById("answer").focus();
+    controls.innerHTML = `<input id="answer" placeholder="Type a missing word"><button onclick="check()">Submit</button><button onclick="back()">Back</button>`;
   }
 }
 
+// Blank mode
 function blankify(text) {
-  return text.split(/\s+/).map(maskWord).join(" ");
+  return text.split(" ").map(maskWord).join(" ");
 }
-
 function maskWord(word) {
-  // Allow inner apostrophes
-  const match = word.match(/^([a-zA-Z]+(?:'[a-zA-Z]+)?)([^a-zA-Z']*)$/);
-  if (!match) return word;
-
-  const [_, core, punctuation] = match;
-  if (core.length <= 2) return word;
-
-  const masked = core[0] + core.slice(1).replace(/[a-zA-Z]/g, '_');
-  return masked + (punctuation || "");
+  let core = word.replace(/[^a-zA-Z]/g, "");
+  if (core.length <= 1) return word;
+  let masked = core[0] + "_".repeat(core.length - 1);
+  return word.replace(core, masked);
 }
 
+// Quiz
 function startQuiz() {
   quizWords = sections[current].split(/\s+/);
   revealed = quizWords.map(() => false);
+  render();
 }
 
 function rebuildQuiz() {
@@ -196,10 +154,9 @@ function check() {
   const input = document.getElementById("answer");
   const guesses = input.value.trim().toLowerCase().split(/\s+/);
   let found = false;
-
-    quizWords.forEach((word, i) => {
-      const cleanWord = word.replace(/[^a-zA-Z']/g, "").toLowerCase(); // keep apostrophes
-      if (!revealed[i] && cleanWord === guess) {
+  guesses.forEach(guess => {
+    quizWords.forEach((w, i) => {
+      if (!revealed[i] && w.replace(/[^a-zA-Z]/g, "").toLowerCase() === guess) {
         revealed[i] = true;
         found = true;
       }
@@ -209,33 +166,24 @@ function check() {
   if (found) {
     input.value = "";
     document.getElementById("content").textContent = rebuildQuiz();
-    if (revealed.every(Boolean)) {
-      document.getElementById("controls").innerHTML = `
-        <button onclick="nextSection()">Next Section</button>
-        <button onclick="goBack()">Back</button>
-      `;
+    if (revealed.every(r => r)) {
+      document.getElementById("controls").innerHTML = `<button onclick="nextSection()">Next Section</button><button onclick="back()">Back</button>`;
     }
-  } else {
-    alert("Try again!");
-  }
-
+  } else alert("Try again!");
   input.focus();
 }
 
+// Navigation
 function next(newMode) {
   if (newMode) mode = newMode;
   if (mode === "quiz") startQuiz();
-  render();
+  else render();
 }
 
-function goBack() {
-  if (mode === "quiz") {
-    mode = "blank";
-  } else if (mode === "blank") {
-    mode = "read";
-  } else if (mode === "read" && current > 0) {
-    current--;
-  }
+function back() {
+  if (mode === "quiz") mode = "blank";
+  else if (mode === "blank") mode = "read";
+  else if (mode === "read" && current > 0) current--;
   render();
 }
 
@@ -243,8 +191,6 @@ function nextSection() {
   if (current < sections.length - 1) {
     current++;
     mode = "read";
-    quizWords = [];
-    revealed = [];
     render();
   } else {
     document.getElementById("content").textContent = "🎉 Finished all sections!";
@@ -252,7 +198,7 @@ function nextSection() {
   }
 }
 
-// Enter key submits answers
+// Enter key submits
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const input = document.getElementById("answer");
