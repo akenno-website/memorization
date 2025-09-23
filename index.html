@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <title>Memorization</title>
 <style>
   body {
@@ -36,21 +35,33 @@
     border-radius: 8px;
     word-wrap: break-word;
   }
-  button { margin: 5px; padding: 10px 15px; font-size: 16px; border: none; border-radius: 5px; background: #4CAF50; color: white; cursor: pointer; }
+  button {
+    margin: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
   button:hover { background: #45a049; }
-  input, textarea { padding: 5px; font-size: 16px; margin-bottom: 10px; width: 100%; }
+  input, textarea {
+    padding: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <h2>Memorization Tool</h2>
-  
-  <!-- Speech input -->
+
   <textarea id="speechInput" placeholder="Paste your speech here..." rows="6"></textarea>
   <input type="number" id="towerSize" placeholder="Words per tower (e.g., 50)">
   <input type="number" id="overlapSize" placeholder="Words to overlap (e.g., 10)">
 
-  <!-- Buttons -->
   <button onclick="init()">Start Memorization</button>
   <button onclick="loadFilipinoResilient()">Practice “Filipino is resilient”</button>
 
@@ -58,8 +69,6 @@
   <div id="controls"></div>
 
   <p class="credit">© Akenno Masangkay, 2025 — <a href="/LICENSE">License</a></p>
-
-
 </div>
 
 <script>
@@ -69,7 +78,6 @@ let mode = "read";
 let quizWords = [];
 let revealed = [];
 
-// Auto-fill classic speech
 function loadFilipinoResilient() {
   const text = `Filipino is resilient. Since time immemorial, we have been tested by countless calamities: volcanic eruptions, devastating earthquakes and lahar flows, super typhoons, flash floods, and landslides.
 
@@ -95,7 +103,6 @@ The Filipino is resilient.`;
   document.getElementById("speechInput").value = text;
 }
 
-// Initialize sections dynamically
 function init() {
   const speech = document.getElementById("speechInput").value.trim();
   const towerSize = parseInt(document.getElementById("towerSize").value) || 50;
@@ -103,20 +110,18 @@ function init() {
 
   if (!speech) return alert("Please enter your speech.");
 
-  // Hide setup inputs
-  document.getElementById("speechInput").style.display = "none";
-  document.getElementById("towerSize").style.display = "none";
-  document.getElementById("overlapSize").style.display = "none";
+  // Hide inputs
+  ["speechInput", "towerSize", "overlapSize"].forEach(id => document.getElementById(id).style.display = "none");
   document.querySelector('button[onclick="init()"]').style.display = "none";
   document.querySelector('button[onclick="loadFilipinoResilient()"]').style.display = "none";
 
-  const words = speech.split(/\s+/);
+  const words = speech.replace(/[’]/g, "'").split(/\s+/); // Normalize smart quotes
   sections = [];
   let start = 0;
+
   while (start < words.length) {
-    let end = start + towerSize;
-    const towerWords = words.slice(start, end);
-    sections.push(towerWords.join(" "));
+    const end = Math.min(start + towerSize, words.length);
+    sections.push(words.slice(start, end).join(" "));
     start = end - overlapSize;
   }
 
@@ -125,8 +130,6 @@ function init() {
   render();
 }
 
-
-// Rendering logic
 function render() {
   const content = document.getElementById("content");
   const controls = document.getElementById("controls");
@@ -137,35 +140,52 @@ function render() {
     return;
   }
 
+  const sectionText = sections[current];
+
   if (mode === "read") {
-    content.textContent = sections[current];
-    controls.innerHTML = `<button onclick="next('blank')">I memorized it</button>${current > 0 ? `<button onclick="back()">Back</button>` : ""}`;
+    content.textContent = sectionText;
+    controls.innerHTML = `
+      <button onclick="next('blank')">I memorized it</button>
+      ${current > 0 ? `<button onclick="goBack()">Back</button>` : ""}
+    `;
   } else if (mode === "blank") {
-    content.textContent = blankify(sections[current]);
-    controls.innerHTML = `<button onclick="next('quiz')">Start Quiz</button><button onclick="back()">Back</button>`;
+    content.textContent = blankify(sectionText);
+    controls.innerHTML = `
+      <button onclick="next('quiz')">Start Quiz</button>
+      <button onclick="goBack()">Back</button>
+    `;
   } else if (mode === "quiz") {
+    if (!quizWords.length) startQuiz();
     content.textContent = rebuildQuiz();
-    controls.innerHTML = `<input id="answer" placeholder="Type a missing word"><button onclick="check()">Submit</button><button onclick="back()">Back</button>`;
+    controls.innerHTML = `
+      <input id="answer" placeholder="Type a missing word">
+      <button onclick="check()">Submit</button>
+      <button onclick="goBack()">Back</button>
+      <button onclick="nextSection()">Skip Quiz</button>
+    `;
+    document.getElementById("answer").focus();
   }
 }
 
-// Masking words for blank mode
 function blankify(text) {
-  return text.split(" ").map(maskWord).join(" ");
+  return text.split(/\s+/).map(maskWord).join(" ");
 }
 
 function maskWord(word) {
-  let core = word.replace(/[^a-zA-Z]/g, "");
-  if (core.length <= 1) return word;
-  let masked = core[0] + "_".repeat(core.length - 1);
-  return word.replace(core, masked);
+  // Allow inner apostrophes
+  const match = word.match(/^([a-zA-Z]+(?:'[a-zA-Z]+)?)([^a-zA-Z']*)$/);
+  if (!match) return word;
+
+  const [_, core, punctuation] = match;
+  if (core.length <= 2) return word;
+
+  const masked = core[0] + core.slice(1).replace(/[a-zA-Z]/g, '_');
+  return masked + (punctuation || "");
 }
 
-// Quiz logic
 function startQuiz() {
   quizWords = sections[current].split(/\s+/);
   revealed = quizWords.map(() => false);
-  render();
 }
 
 function rebuildQuiz() {
@@ -177,9 +197,9 @@ function check() {
   const guesses = input.value.trim().toLowerCase().split(/\s+/);
   let found = false;
 
-  guesses.forEach(guess => {
-    quizWords.forEach((w, i) => {
-      if (!revealed[i] && w.replace(/[^a-zA-Z]/g, "").toLowerCase() === guess) {
+    quizWords.forEach((word, i) => {
+      const cleanWord = word.replace(/[^a-zA-Z']/g, "").toLowerCase(); // keep apostrophes
+      if (!revealed[i] && cleanWord === guess) {
         revealed[i] = true;
         found = true;
       }
@@ -189,25 +209,33 @@ function check() {
   if (found) {
     input.value = "";
     document.getElementById("content").textContent = rebuildQuiz();
-    if (revealed.every(r => r)) {
-      document.getElementById("controls").innerHTML = `<button onclick="nextSection()">Next Section</button><button onclick="back()">Back</button>`;
+    if (revealed.every(Boolean)) {
+      document.getElementById("controls").innerHTML = `
+        <button onclick="nextSection()">Next Section</button>
+        <button onclick="goBack()">Back</button>
+      `;
     }
-  } else alert("Try again!");
+  } else {
+    alert("Try again!");
+  }
 
   input.focus();
 }
 
-// Navigation
 function next(newMode) {
   if (newMode) mode = newMode;
   if (mode === "quiz") startQuiz();
-  else render();
+  render();
 }
 
-function back() {
-  if (mode === "quiz") mode = "blank";
-  else if (mode === "blank") mode = "read";
-  else if (mode === "read" && current > 0) current--;
+function goBack() {
+  if (mode === "quiz") {
+    mode = "blank";
+  } else if (mode === "blank") {
+    mode = "read";
+  } else if (mode === "read" && current > 0) {
+    current--;
+  }
   render();
 }
 
@@ -215,6 +243,8 @@ function nextSection() {
   if (current < sections.length - 1) {
     current++;
     mode = "read";
+    quizWords = [];
+    revealed = [];
     render();
   } else {
     document.getElementById("content").textContent = "🎉 Finished all sections!";
@@ -222,7 +252,7 @@ function nextSection() {
   }
 }
 
-// Submit on Enter key
+// Enter key submits answers
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const input = document.getElementById("answer");
@@ -235,17 +265,3 @@ document.addEventListener("keydown", (e) => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
